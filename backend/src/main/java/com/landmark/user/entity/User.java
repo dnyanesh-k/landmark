@@ -19,8 +19,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long userId;
 
-    @Column(unique = true, nullable = false, length = 20)
-    private String username;
+//    @Column(unique = true, nullable = false, length = 20)
+//    private String username;
 
     @Column(nullable = false, length = 50)
     private String firstName;
@@ -28,8 +28,8 @@ public class User {
     @Column(nullable = false, length = 50)
     private String lastName;
 
-    @Column(unique = true, nullable = false, length = 100)
-    private String email;
+//    @Column(unique = true, nullable = false, length = 100)
+//    private String email;
 
     @Column(unique = true, nullable = false, length = 15)
     private String phoneNumber;
@@ -46,6 +46,9 @@ public class User {
 
     @Column
     private LocalDateTime updatedAt;
+    
+    @Column(length = 100)
+    private String address;
 
     @PrePersist
     protected void onCreate() {

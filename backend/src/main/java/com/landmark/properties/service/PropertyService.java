@@ -14,4 +14,6 @@ public interface PropertyService {
     PropertyResponseDTO getPropertyById(Long id);
 
     void deleteProperty(Long id);
+    
+    public List<PropertyResponseDTO> getPropertiesByCurrentUser();
 }

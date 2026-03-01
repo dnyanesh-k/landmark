@@ -9,11 +9,11 @@ import com.landmark.user.entity.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<User> findByEmail(String email);
+//    Optional<User> findByEmail(String email);
 
-    public boolean existsByEmail(String email);
+    public boolean existsByPhoneNumber(String phoneNumber);
 
-    Optional<User> findByUsername(String email);
+    Optional<User> findByPhoneNumber(String phoneNumber);
 
     Optional<User> findById(Long id);
 

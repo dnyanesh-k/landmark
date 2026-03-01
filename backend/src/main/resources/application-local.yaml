@@ -3,7 +3,7 @@ spring:
     name: landmark-backend
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/landmark
+    url: jdbc:postgresql://127.0.0.1:5432/landmark
     username: landmark_user
     password: landmark_pass
     driver-class-name: org.postgresql.Driver

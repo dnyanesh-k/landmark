@@ -1,11 +1,14 @@
 package com.landmark.properties.dto;
 
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class PropertyRequestDTO {
 
     @NotBlank
@@ -15,11 +18,10 @@ public class PropertyRequestDTO {
     private String description;
 
     @NotNull
-    @DecimalMin("0.0")
-    private BigDecimal price;
+    private Long price;
 
     @NotNull
-    private Double areaSqFt;
+    private Long areaSqFt;
 
     @NotBlank
     private String city;

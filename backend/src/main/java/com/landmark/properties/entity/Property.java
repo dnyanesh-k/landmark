@@ -33,11 +33,11 @@ public class Property {
     @Column(nullable = false, length = 2000)
     private String description;
 
-    @Column(nullable = false, precision = 15, scale = 2)
-    private BigDecimal price;
+    @Column(nullable = false)
+    private Long price;
 
     @Column(nullable = false)
-    private Double areaSqFt;
+    private Long areaSqFt;
 
     @Column(nullable = false, length = 100)
     private String city;

@@ -9,6 +9,8 @@ import com.landmark.properties.dto.PropertyRequestDTO;
 import com.landmark.properties.dto.PropertyResponseDTO;
 import com.landmark.properties.entity.Property;
 import com.landmark.properties.exception.PropertyNotFoundException;
+import com.landmark.properties.exception.ResourceNotFoundException;
+import com.landmark.properties.mapper.PropertyMapper;
 import com.landmark.properties.exception.InvalidSellerException;
 import com.landmark.properties.repository.PropertyRepository;
 import com.landmark.user.entity.User;
@@ -24,6 +26,7 @@ public class PropertyServiceImpl implements PropertyService {
 
     private final PropertyRepository propertyRepository;
     private final UserRepository userRepository;
+    private final PropertyMapper propertyMapper;
 
     @Override
     @Transactional
@@ -93,4 +96,24 @@ public class PropertyServiceImpl implements PropertyService {
                 .createdAt(property.getCreatedAt())
                 .build();
     }
+    
+    @Override
+    public List<PropertyResponseDTO> getPropertiesByCurrentUser() {
+        // 1. Get the current logged-in user's identifier (username/phone) from JWT
+        String currentUserPhone = org.springframework.security.core.context.SecurityContextHolder
+                .getContext().getAuthentication().getName();
+
+        // 2. Find the user in DB
+        User seller = userRepository.findByPhoneNumber(currentUserPhone)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        // 3. Fetch properties belonging to this seller
+        List<Property> properties = propertyRepository.findBySeller(seller);
+
+        // 4. Map to DTOs
+        return properties.stream()
+                .map(propertyMapper::toDTO)
+                .toList();
+    }
+
 }

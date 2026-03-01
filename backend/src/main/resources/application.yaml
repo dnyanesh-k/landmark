@@ -12,7 +12,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate        # Flyway handles schema, not Hibernate
+      ddl-auto: create        # Flyway handles schema, not Hibernate
     show-sql: false
     properties:
       hibernate:
