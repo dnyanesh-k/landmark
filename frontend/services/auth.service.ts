@@ -16,7 +16,7 @@ export const login = async (payload: {
       { headers: { 'Content-Type': 'application/json' } }
     );
 
-    return response.data.data;
+    return response.data;
   } catch (error: any) {
     if (error.response) {
       throw error.response.data?.message || 'Login failed';
@@ -34,6 +34,7 @@ export const register = async (payload: any) => {
       payload,
       { headers: { 'Content-Type': 'application/json' } }
     );
+    console.log("RESPONSE.DATA ==>", response.data);
 
     return response.data;
   } catch (error: any) {

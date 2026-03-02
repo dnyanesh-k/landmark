@@ -1,6 +1,5 @@
 package com.landmark.properties.dto;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;

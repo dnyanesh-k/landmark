@@ -29,6 +29,8 @@ export const getMyProperties = async (token: string) => {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
+    console.log(res.data);
+
     return res.data;
   } catch (error: any) {
     throw error.response?.data?.message || 'Failed to fetch your properties';

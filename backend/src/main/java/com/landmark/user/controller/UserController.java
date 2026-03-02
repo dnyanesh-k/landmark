@@ -23,7 +23,7 @@ public class UserController {
 
     @PostMapping("/register")
     public ApiResponseDTO<?> registerUser(@Valid @RequestBody UserRegistrationDTO user) {
-    	System.out.println("USER : "+user.toString());
+    	System.out.println("REGISTER USER : "+user.toString());
         UserResponseDTO registeredUser = userService.registerUser(user);
         return ApiResponseDTO.ok(
                 registeredUser,

@@ -36,20 +36,12 @@ public class PropertyServiceImpl implements PropertyService {
                 .orElseThrow(() ->
                         new InvalidSellerException("Seller not found with id " + requestDTO.getSellerId()));
 
-        Property property = Property.builder()
-                .title(requestDTO.getTitle())
-                .description(requestDTO.getDescription())
-                .price(requestDTO.getPrice())
-                .areaSqFt(requestDTO.getAreaSqFt())
-                .city(requestDTO.getCity())
-                .address(requestDTO.getAddress())
-                .plotNumber(requestDTO.getPlotNumber())
-                .surveyNumber(requestDTO.getSurveyNumber())
-                .seller(seller)
-                .build();
-
+        Property property = propertyMapper.toEntity(requestDTO);
+        
+        property.setSeller(seller);
+        System.out.println("PROPERRY TOENTITY ===> " + property);
         Property saved = propertyRepository.save(property);
-
+        System.out.println("SAVED ENTITY: "+ saved);
         return mapToDTO(saved);
     }
 

@@ -2,7 +2,6 @@ import { PropertyContext } from '@/context/PropertyContext';
 import React, { useContext, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -12,27 +11,36 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 
 export default function AddProperty() {
   const { addProperty } = useContext(PropertyContext);
+
   const [title, setTitle] = useState('');
   const [areaSqFt, setAreaSqFt] = useState('');
   const [address, setAddress] = useState('');
   const [price, setPrice] = useState('');
   const [city, setCity] = useState('');
   const [description, setDescription] = useState('');
-  const [loading, setLoading] = useState(false);
   const [plotNumber, setPlotNumber] = useState('');
   const [surveyNumber, setSurveyNumber] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handle = async () => {
-    if (!title || !areaSqFt || !price || !city)
-      return Alert.alert('Error', 'Please fill all required fields');
+  const handlePublish = async () => {
+    if (!title || !areaSqFt || !price || !city) {
+      return Toast.show({
+        type: 'error',
+        text1: 'Missing Required Fields',
+        text2: 'Title, City, Area and Price are mandatory.',
+        position: 'top',
+        visibilityTime: 3000,
+      });
+    }
 
     try {
       setLoading(true);
 
-      await addProperty({
+      const response = await addProperty({
         title,
         areaSqFt,
         address,
@@ -43,11 +51,15 @@ export default function AddProperty() {
         surveyNumber
       });
 
-      Alert.alert(
-        "Property Listed",
-        "Your property has been successfully published.",
-      );
+      Toast.show({
+        type: 'success',
+        text1: 'Plot Published',
+        text2: response?.message || 'Your plot is now live.',
+        position: 'top',
+        visibilityTime: 3000,
+      });
 
+      // Clear form
       setTitle('');
       setAreaSqFt('');
       setAddress('');
@@ -56,8 +68,15 @@ export default function AddProperty() {
       setCity('');
       setPlotNumber('');
       setSurveyNumber('');
+
     } catch (error: any) {
-      Alert.alert('Error', error.toString());
+      Toast.show({
+        type: 'error',
+        text1: 'Publishing Failed',
+        text2: error?.message || 'Something went wrong. Please try again.',
+        position: 'top',
+        visibilityTime: 4000,
+      });
     } finally {
       setLoading(false);
     }
@@ -66,57 +85,86 @@ export default function AddProperty() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={{ flex: 1 }}
+      style={{ flex: 1, backgroundColor: '#F5F1E8' }}
     >
       <ScrollView
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.heading}>Add Property</Text>
-        <Text style={styles.subHeading}>
-          Enter the property details below
-        </Text>
+        {/* Header (consistent with Login/Register) */}
+        <View style={styles.header}>
+          <Text style={styles.brand}>Add Property</Text>
+          <Text style={styles.subtitle}>List your property for buyers</Text>
+        </View>
 
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Basic Information</Text>
+          <Text style={styles.title}>Add Property Details</Text>
 
-          <Input label="Title *" value={title} onChangeText={setTitle} />
-          <Input label="City *" value={city} onChangeText={setCity} />
+          <Input
+            label="Title *"
+            value={title}
+            onChangeText={setTitle}
+            placeholder="e.g. Premium Riverside Property"
+          />
+          <Input label="City *"
+            value={city}
+            onChangeText={setCity}
+            placeholder="e.g. Pune, Maharashtra"
+          />
           <Input
             label="Area (Sq.Ft) *"
             value={areaSqFt}
             onChangeText={setAreaSqFt}
             keyboardType="numeric"
+            placeholder="e.g. 1200"
           />
-          <Input label="Price *" value={price} onChangeText={setPrice} keyboardType="numeric" />
-        </View>
+          <Input
+            label="Price *"
+            value={price}
+            onChangeText={setPrice}
+            keyboardType="numeric"
+            placeholder="₹ 1200000"
+          />
 
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Property Details</Text>
-
-          <Input label="Plot Number" value={plotNumber} onChangeText={setPlotNumber} />
-          <Input label="Survey Number" value={surveyNumber} onChangeText={setSurveyNumber} />
-          <Input label="Address" value={address} onChangeText={setAddress} />
+          <Input
+            label="Plot Number"
+            value={plotNumber}
+            onChangeText={setPlotNumber}
+            placeholder="e.g. 10"
+          />
+          <Input
+            label="Survey Number"
+            value={surveyNumber}
+            onChangeText={setSurveyNumber}
+            placeholder="e.g. 19 (As per 7/12 Utara)"
+          />
+          <Input
+            label="Address"
+            value={address}
+            onChangeText={setAddress}
+            placeholder="Nearby landmark"
+          />
           <Input
             label="Description"
             value={description}
             onChangeText={setDescription}
             multiline
-            height={120}
+            height={110}
+            placeholder="Describe the property, road access, and nearby developments..."
           />
-        </View>
 
-        <TouchableOpacity
-          style={[styles.button, loading && { opacity: 0.7 }]}
-          onPress={handle}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.btnText}>Submit Property</Text>
-          )}
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, loading && styles.buttonDisabled]}
+            onPress={handlePublish}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Publish Plot</Text>
+            )}
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -128,80 +176,86 @@ const Input = ({ label, height, ...props }: any) => (
     <TextInput
       {...props}
       style={[styles.input, height && { height }]}
-      placeholderTextColor="#9CA3AF"
-      selectionColor="#111827"
-      cursorColor="#111827"
+      placeholderTextColor="#9C9C9C"
     />
   </View>
 );
+
 const styles = StyleSheet.create({
   container: {
-    padding: 22,
-    backgroundColor: '#F2F4F8',
+    flexGrow: 1,
+    paddingHorizontal: 24,
+    paddingVertical: 40,
   },
-  heading: {
-    fontSize: 28,
+
+  header: {
+    marginBottom: 40,
+  },
+
+  brand: {
+    fontSize: 42,
     fontWeight: '800',
-    marginBottom: 6,
-    color: '#111'
+    color: '#1F3D2B',
+    letterSpacing: -1.2,
+    textAlign: 'center',
   },
-  subHeading: {
+
+  subtitle: {
+    marginTop: 6,
     fontSize: 14,
-    color: '#6B7280',
-    marginBottom: 28
+    color: '#5F6F52',
+    textAlign: 'center',
   },
+
   card: {
     backgroundColor: '#FFFFFF',
-    padding: 20,
-    borderRadius: 20,
+    borderRadius: 30,
+    padding: 28,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 25,
+    elevation: 8,
+  },
+
+  title: {
+    fontSize: 22,
+    fontWeight: '700',
     marginBottom: 22,
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 5
+    color: '#2B2B2B',
   },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    marginBottom: 18,
-    color: '#374151',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5
-  },
+
   label: {
-    fontSize: 12,
-    fontWeight: '600',
-    marginBottom: 8,
-    color: '#6B7280'
+    fontSize: 13,
+    marginBottom: 6,
+    color: '#6B7280',
   },
+
   input: {
-    backgroundColor: '#F9FAFB',
-    paddingVertical: 16,
-    paddingHorizontal: 14,
-    borderRadius: 14,
-    fontSize: 15,
-    color: '#111',
-    borderWidth: 1,
-    borderColor: '#E5E7EB'
-  },
-  button: {
-    backgroundColor: '#111827',
-    paddingVertical: 18,
+    height: 56,
     borderRadius: 18,
-    alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 40,
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 6
+    backgroundColor: '#F3F2EF',
+    paddingHorizontal: 18,
+    marginBottom: 6,
+    fontSize: 15,
+    color: '#2B2B2B',
   },
-  btnText: {
-    color: '#fff',
-    fontWeight: '700',
+
+  button: {
+    height: 58,
+    borderRadius: 20,
+    backgroundColor: '#1F3D2B',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+
+  buttonDisabled: {
+    backgroundColor: '#A3B18A',
+  },
+
+  buttonText: {
+    color: '#FFFFFF',
     fontSize: 16,
-    letterSpacing: 0.5
-  }
+    fontWeight: '600',
+  },
 });

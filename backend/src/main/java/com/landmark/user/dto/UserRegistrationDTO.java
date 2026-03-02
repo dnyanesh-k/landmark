@@ -28,6 +28,7 @@ public class UserRegistrationDTO {
 //    private String email;
 
     @NotBlank(message = "PhoneNumber is required!")
+    @Pattern(regexp = "^[6-9]\\d{9}$", message = "Invalid phone number! Must be a 10-digit Indian mobile number.")
     private String phoneNumber;
 
     @NotNull(message = "Role is required!")

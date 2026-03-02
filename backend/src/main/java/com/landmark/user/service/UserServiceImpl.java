@@ -31,8 +31,9 @@ public class UserServiceImpl implements UserService {
         }
         User user = userMapper.toEntity(userDTO);
         user.setPasswordHash(passwordEncoder.encode(userDTO.getPasswordHash()));
-        User registredUser = userRepository.save(user);
-        return userMapper.toDTO(registredUser);
+        User registeredUser = userRepository.save(user);
+        System.out.println("RIGISTERED USER: "+registeredUser);
+        return userMapper.toDTO(registeredUser);
     }
 
 }
