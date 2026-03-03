@@ -1,18 +1,20 @@
 import PropertyCard from '@/components/PropertyCard';
+import ScreenLayout from '@/components/ScreenLayout';
 import { PropertyContext } from '@/context/PropertyContext';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
   FlatList,
   StyleSheet,
-  Text,
   TextInput,
   View,
+  useWindowDimensions,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
   const { properties, fetchProperties } = useContext(PropertyContext);
+  const { width } = useWindowDimensions();
 
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
@@ -25,7 +27,6 @@ export default function HomeScreen() {
         setLoading(false);
       }
     };
-
     load();
   }, []);
 
@@ -44,93 +45,73 @@ export default function HomeScreen() {
     );
   }, [search, safeProperties]);
 
-  if (loading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#1F3D2B" />
-        <Text style={styles.loadingText}>Loading properties...</Text>
-      </View>
-    );
-  }
+  // Responsive calculations
+  const isTablet = width >= 768;
+  const horizontalPadding = width * 0.05; // 5% padding
+  const maxContentWidth = 900;
 
   return (
-    <View style={styles.container}>
-      {/* ---------- Header ---------- */}
-      <View style={styles.header}>
-        <Text style={styles.heading}>Explore Plots</Text>
-        <Text style={styles.subHeading}>
-          Discover curated land opportunities
-        </Text>
-      </View>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F1E8' }}>
+      <View
+        style={{
+          flex: 1,
+          alignSelf: 'center',
+          width: '100%',
+          maxWidth: maxContentWidth,
+          paddingHorizontal: horizontalPadding,
+        }}
+      >
+        <ScreenLayout
+          title="Discover Land"
+          subtitle={`${filteredProperties.length} listings available`}
+          loading={loading}
+          loadingText="Loading properties..."
+          empty={filteredProperties.length === 0}
+          emptyMode="inline"
+          emptyTitle="No properties found"
+          emptySubtitle="Try adjusting your search terms."
+        >
+          {/* Search Bar */}
+          <View
+            style={[
+              styles.searchContainer,
+              { height: isTablet ? 56 : 48 },
+            ]}
+          >
+            <Ionicons name="search-outline" size={18} color="#6B7280" />
+            <TextInput
+              placeholder="Search city, area or title"
+              placeholderTextColor="#9CA3AF"
+              style={styles.searchInput}
+              value={search}
+              onChangeText={setSearch}
+            />
+          </View>
 
-      {/* ---------- Search ---------- */}
-      <View style={styles.searchContainer}>
-        <Ionicons name="search-outline" size={18} color="#6B7280" />
-        <TextInput
-          placeholder="Search by city, area or title"
-          placeholderTextColor="#9CA3AF"
-          style={styles.searchInput}
-          value={search}
-          onChangeText={setSearch}
-        />
+          {/* List */}
+          <FlatList
+            data={filteredProperties}
+            keyExtractor={(item) => String(item.id)}
+            renderItem={({ item }) => (
+              <PropertyCard property={item} />
+            )}
+            contentContainerStyle={styles.list}
+            showsVerticalScrollIndicator={false}
+          />
+        </ScreenLayout>
       </View>
-
-      {/* ---------- Results ---------- */}
-      {!filteredProperties.length ? (
-        <View style={styles.emptyWrap}>
-          <Ionicons name="search-outline" size={40} color="#D1D5DB" />
-          <Text style={styles.emptyTitle}>No properties found</Text>
-          <Text style={styles.emptySub}>
-            Try adjusting your search terms
-          </Text>
-        </View>
-      ) : (
-        <FlatList
-          data={filteredProperties}
-          keyExtractor={(item) => String(item.id)}
-          renderItem={({ item }) => (
-            <PropertyCard property={item} />
-          )}
-          contentContainerStyle={styles.list}
-          showsVerticalScrollIndicator={false}
-        />
-      )}
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F1E8',
-    paddingHorizontal: 20,
-    paddingTop: 50,
-  },
-
-  header: {
-    marginBottom: 28,
-  },
-
-  heading: {
-    fontSize: 30,
-    fontWeight: '800',
-    color: '#1F3D2B',
-  },
-
-  subHeading: {
-    marginTop: 6,
-    fontSize: 14,
-    color: '#6B7280',
-  },
-
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
+    borderRadius: 16,
     paddingHorizontal: 16,
-    height: 54,
-    marginBottom: 24,
+    marginBottom: 20,
     borderWidth: 1,
     borderColor: '#E5E7EB',
   },
@@ -143,38 +124,6 @@ const styles = StyleSheet.create({
   },
 
   list: {
-    paddingBottom: 30,
-  },
-
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5F1E8',
-  },
-
-  loadingText: {
-    marginTop: 10,
-    color: '#6B7280',
-  },
-
-  emptyWrap: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 60,
-  },
-
-  emptyTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginTop: 14,
-    color: '#374151',
-  },
-
-  emptySub: {
-    fontSize: 13,
-    color: '#9CA3AF',
-    marginTop: 4,
+    paddingBottom: 40,
   },
 });

@@ -12,14 +12,14 @@ export const getProperties = async () => {
   }
 };
 
-export const getPropertyById = async (id: string) => {
-  try {
-    const res = await axios.get(`${BASE_URL}/properties/${id}`);
-    return res.data;
-  } catch (error: any) {
-    throw error.response?.data?.message || 'Failed to fetch property';
-  }
-};
+  export const getPropertyById = async (id: string) => {
+    try {
+      const res = await axios.get(`${BASE_URL}/properties/${id}`);
+      return res.data;
+    } catch (error: any) {
+      throw error.response?.data?.message || 'Failed to fetch property';
+    }
+  };
 
 export const getMyProperties = async (token: string) => {
   try {
@@ -39,20 +39,19 @@ export const getMyProperties = async (token: string) => {
 
 
 export const addProperty = async (
-  payload: any,
+  formData: FormData,
   token: string
 ) => {
   try {
-    console.log("ADD PROPERTY: ", JSON.stringify(payload));
-
     const res = await axios.post(
       `${BASE_URL}/properties`,
-      payload,
+      formData,
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          'Content-Type': 'multipart/form-data',
         },
+        transformRequest: () => formData,
       }
     );
     return res.data;

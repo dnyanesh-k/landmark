@@ -49,6 +49,12 @@ export default function TabLayout() {
             ),
           }}
         />
+        <Tabs.Screen
+          name="property"
+          options={{
+            href: null,
+          }}
+        />
 
         <Tabs.Screen
           name="my-properties"
@@ -88,10 +94,12 @@ export default function TabLayout() {
                 size={22}
                 color={color}
               />
+
             ),
           }}
         />
       </Tabs>
+
     );
   }
 

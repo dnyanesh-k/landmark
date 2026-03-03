@@ -1,19 +1,26 @@
 import { AuthContext } from '@/context/AuthContext';
+import ScreenLayout from '@/components/ScreenLayout'; // Import your consistent layout
 import { useRouter } from 'expo-router';
 import React, { useContext } from 'react';
 import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
+  useWindowDimensions,
+  ScrollView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Profile() {
   const { user, signOut } = useContext(AuthContext);
   const router = useRouter();
+  const { width } = useWindowDimensions();
+
+  // Responsive logic (Matching MyProperties)
+  const isTablet = width >= 768;
+  const horizontalPadding = width * 0.05;
+  const maxContentWidth = 700; // Profile looks better slightly narrower than listing grid
 
   const handleLogout = async () => {
     await signOut();
@@ -24,43 +31,87 @@ export default function Profile() {
     `${user?.firstName?.[0] || ''}${user?.lastName?.[0] || ''}`.toUpperCase();
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={{ flex: 1, backgroundColor: '#F5F1E8' }}
-    >
-      <ScrollView
-        contentContainerStyle={styles.container}
-        showsVerticalScrollIndicator={false}
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F1E8' }}>
+      <View
+        style={{
+          flex: 1,
+          alignSelf: 'center',
+          width: '100%',
+          maxWidth: maxContentWidth,
+          paddingHorizontal: horizontalPadding,
+        }}
       >
-        {/* Header - SAME STYLE AS ADD PROPERTY */}
-        <View style={styles.header}>
-          <Text style={styles.brand}>Profile</Text>
-          <Text style={styles.subtitle}>Your account details</Text>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.title}>Profile Information</Text>
-
-          {/* Avatar */}
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{initials}</Text>
-          </View>
-
-          <InfoRow label="Full Name" value={`${user?.firstName} ${user?.lastName}`} />
-          <InfoRow label="Phone Number" value={user?.phoneNumber} />
-          <InfoRow label="Address" value={user?.address || 'Not available'} />
-          <InfoRow label="Role" value={user?.role} />
-
-          <TouchableOpacity
-            style={styles.button}
-            activeOpacity={0.9}
-            onPress={handleLogout}
+        <ScreenLayout
+          title="Profile"
+          subtitle="Your account details"
+        >
+          <ScrollView 
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 40 }}
           >
-            <Text style={styles.buttonText}>Logout</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+            <View
+              style={[
+                styles.card,
+                { padding: isTablet ? 36 : 28 },
+              ]}
+            >
+              <Text style={styles.title}>Profile Information</Text>
+
+              {/* Avatar Section */}
+              <View
+                style={[
+                  styles.avatar,
+                  {
+                    height: isTablet ? 110 : 90,
+                    width: isTablet ? 110 : 90,
+                    borderRadius: isTablet ? 55 : 45,
+                  },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.avatarText,
+                    { fontSize: isTablet ? 34 : 28 },
+                  ]}
+                >
+                  {initials}
+                </Text>
+              </View>
+
+              {/* Info Rows */}
+              <InfoRow
+                label="Full Name"
+                value={`${user?.firstName || ''} ${user?.lastName || ''}`}
+              />
+              <InfoRow
+                label="Phone Number"
+                value={user?.phoneNumber || 'Not available'}
+              />
+              <InfoRow
+                label="Address"
+                value={user?.address || 'Not available'}
+              />
+              <InfoRow
+                label="Role"
+                value={user?.role || 'User'}
+              />
+
+              {/* Action Button */}
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  { marginTop: isTablet ? 28 : 20 },
+                ]}
+                activeOpacity={0.9}
+                onPress={handleLogout}
+              >
+                <Text style={styles.buttonText}>Logout</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </ScreenLayout>
+      </View>
+    </SafeAreaView>
   );
 }
 
@@ -74,39 +125,14 @@ const InfoRow = ({ label, value }: any) => (
 );
 
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingVertical: 40,
-  },
-
-  header: {
-    marginBottom: 40,
-  },
-
-  brand: {
-    fontSize: 42,
-    fontWeight: '800',
-    color: '#1F3D2B',
-    letterSpacing: -1.2,
-    textAlign: 'center',
-  },
-
-  subtitle: {
-    marginTop: 6,
-    fontSize: 14,
-    color: '#5F6F52',
-    textAlign: 'center',
-  },
-
   card: {
     backgroundColor: '#FFFFFF',
     borderRadius: 30,
-    padding: 28,
     shadowColor: '#000',
     shadowOpacity: 0.08,
     shadowRadius: 25,
     elevation: 8,
+    marginTop: 10, // Small gap from header
   },
 
   title: {
@@ -118,9 +144,6 @@ const styles = StyleSheet.create({
 
   avatar: {
     alignSelf: 'center',
-    height: 90,
-    width: 90,
-    borderRadius: 45,
     backgroundColor: '#1F3D2B',
     justifyContent: 'center',
     alignItems: 'center',
@@ -129,7 +152,6 @@ const styles = StyleSheet.create({
 
   avatarText: {
     color: '#fff',
-    fontSize: 28,
     fontWeight: '700',
   },
 
@@ -158,7 +180,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#1F3D2B',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
   },
 
   buttonText: {

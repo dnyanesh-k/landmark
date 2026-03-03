@@ -1,13 +1,15 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  TouchableOpacity
-} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import React from 'react';
+import {
+  Alert,
+  Image,
+  Linking,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native';
 
 export default function PropertyCard({ property, sellerView }: any) {
   const router = useRouter();
@@ -24,19 +26,43 @@ export default function PropertyCard({ property, sellerView }: any) {
     ? new Date(property.createdAt).toLocaleDateString()
     : '';
 
+  const imageUrl =
+    Array.isArray(property.imageUrls) &&
+      property.imageUrls.length > 0
+      ? property.imageUrls[1]
+      : null;
+
+  // Open dialer
+  const handleCall = (e: any) => {
+    e.stopPropagation();
+    if (property.phoneNumber) {
+      Linking.openURL(`tel:${property.phoneNumber}`);
+    } else {
+      Alert.alert('Not Available', 'Contact number not provided for this listing.');
+    }
+  };
+
+  // Placeholder Interest API
+  const handleInterest = (e: any) => {
+    e.stopPropagation();
+    console.log("Interest expressed for property:", property.id);
+    Alert.alert('Interested', 'The seller has been notified of your interest!');
+  };
+
   return (
     <TouchableOpacity
       activeOpacity={0.9}
       style={styles.card}
-      onPress={() => router.push(`/property/${property.id}`)}
+    onPress={() => router.push(`/property/${property.id}`)}
     >
-      {/* IMAGE */}
+
+
       <Image
-        source={{
-          uri:
-            property.images?.[0] ||
-            'https://via.placeholder.com/600x400/edf2f7/cccccc'
-        }}
+        source={
+          imageUrl
+            ? { uri: imageUrl }
+            : { uri: 'https://via.placeholder.com/400x300?text=No+Image' }
+        }
         style={styles.image}
       />
 
@@ -86,6 +112,28 @@ export default function PropertyCard({ property, sellerView }: any) {
             <Text style={styles.date}>{formattedDate}</Text>
           )}
         </View>
+
+        {/* NEW ICON ROW BELOW PRICE (Only for Buyer View) */}
+        {!sellerView && (
+          <View style={styles.iconRow}>
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={handleCall}
+            >
+              <Ionicons name="call-outline" size={20} color="#1F3D2B" />
+              <Text style={styles.iconText}>Call</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={handleInterest}
+            >
+              <Ionicons name="heart-outline" size={20} color="#1F3D2B" />
+              <Text style={styles.iconText}>Interested</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
       </View>
     </TouchableOpacity>
   );
@@ -179,5 +227,24 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     marginLeft: 6,
+  },
+
+  // NEW ICON ROW
+  iconRow: {
+    flexDirection: 'row',
+    marginTop: 12,
+    gap: 24,
+  },
+
+  iconButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  iconText: {
+    marginLeft: 6,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1F3D2B',
   },
 });
